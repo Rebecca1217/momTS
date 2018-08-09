@@ -1,17 +1,17 @@
-% rankingPeriod 排序期 
+% rankingPeriod 排序期
 % holdingPeriod 持有期
 % volScalingType:0 等权 1 ATR倒数加权  2 波动率倒数加权 3 目标波动率20% 4 目标波动率30% 5 目标波动率 40%
 % volScalingDays 估计波动率的时-间窗口
 % smoothingType 0 不平滑 1 平滑
 % trdFeeType 0 不扣费 1 扣费 2 扣费和1个滑点
-% enterPriceType 0 次日开盘价 1 次日收盘价 2 当日收盘价 
+% enterPriceType 0 次日开盘价 1 次日收盘价 2 当日收盘价
 signalType = 'tsmom';
 rankingPeriod = 10;
 holdingPeriod = 5;
 type = 'winner - loser';
 tsType = 3;
 smoothingType = 1;
-volScalingType = 0; 
+volScalingType = 0;
 volScalingDays = 86;
 smoothingType = 1;
 trdFeeType = 1;
@@ -132,7 +132,7 @@ if ~enterPriceType  %以次日开盘价成交
                 
                 positionDirection(i,:) = currSignal;
                 
-              %交易的合约价值
+                %交易的合约价值
                 tradingValue = dynamicEquity(i) * PositionRatio * (1 / marginRatio);
                 tradingValue = dynamicEquity(i);
                 tradingValuePerCont =  tradingValue/length(currSignal(currSignal~=0));
@@ -190,43 +190,43 @@ if ~enterPriceType  %以次日开盘价成交
                         N = length(volList);
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         avgCorr = (sum(sum(ExpCorrC)) - sum(diag(ExpCorrC)))/(N*(N-1));
-                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.1./volList*sqrt(N/(1+(N-1)*avgCorr));              
-                                            
+                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.1./volList*sqrt(N/(1+(N-1)*avgCorr));
+                        
                     elseif volScalingType == 7
                         N = length(volList);
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         avgCorr = (sum(sum(ExpCorrC)) - sum(diag(ExpCorrC)))/(N*(N-1));
                         tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList*sqrt(N/(1+(N-1)*avgCorr));
-                   
-                     elseif volScalingType == 8
-                         
+                        
+                    elseif volScalingType == 8
+                        
                         PortWts = (currSignal(currSignal~=0))/sum(abs(currSignal));
                         ExpReturn = zeros(size(PortWts));
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         [PortRisk , PortReturn] =portstats( ExpReturn, ExpCorrC , PortWts);
-                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.1./volList/PortRisk; 
-
-                         
-                     elseif volScalingType == 9
-                         
+                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.1./volList/PortRisk;
+                        
+                        
+                    elseif volScalingType == 9
+                        
                         PortWts = (currSignal(currSignal~=0))/sum(abs(currSignal));
                         ExpReturn = zeros(size(PortWts));
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         [PortRisk , PortReturn] =portstats( ExpReturn, ExpCorrC , PortWts);
-                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList/PortRisk; 
-                         
-                         
+                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList/PortRisk;
+                        
+                        
                     elseif volScalingType == 10
                         N = length(volList);
                         covMatrix = cov(retList);
                         weight = fmincon(@(x) riskParityFunc(x,covMatrix),1./volList/sum(1./volList), [],[],ones(1,N) ,1);
                         %tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList*sqrt(N/(1+(N-1)*avgCorr));
                         tradingValuePerContAdjustedbyVol = tradingValue.*weight;
-
+                        
                     end
                     tempScale = tradingValuePerContAdjustedbyVol/tradingValuePerCont;
                 end
-
+                
                 
                 %每个合约建仓价格 真实价格 用于计算资金   第二天开盘价
                 entryPrice =cellfun(@(x) ( x.dominant_Data(x.tradeCalendar == tradeCalendar(i),...
@@ -234,12 +234,12 @@ if ~enterPriceType  %以次日开盘价成交
                 %每个合约建仓价格 复权价格  用于计算收益
                 entryAdjPrice =cellfun(@(x) ( x.dominant_Adjusted_Data(x.tradeCalendar == tradeCalendar(i),...
                     2)),commodityDataCell(2,currSignal~=0));
- 
+                
                 %每个合约交易手数 波动率加权
                 %开盘价
                 tradingLots = round( tempScale'.* cellfun(@(x) ( tradingValuePerCont/x.scale/x.dominant_Data(x.tradeCalendar == tradeCalendar(i+1),...
                     2)),commodityDataCell(2,currSignal~=0)));
-   
+                
                 %每个合约换手情况
                 tradingLotsPerCont = currSignal;
                 tradingLotsPerCont(currSignal~=0) =  tradingLotsPerCont(currSignal~=0).*tradingLots;
@@ -347,7 +347,7 @@ if ~enterPriceType  %以次日开盘价成交
         %disp(n)
     end
     
-elseif enterPriceType == 1 %以次日收盘价成交你
+elseif enterPriceType == 1 %以次日收盘价成交
     
     for k = 1 : pathNum
         
@@ -428,7 +428,7 @@ elseif enterPriceType == 1 %以次日收盘价成交你
                             lotsClose,currPosition(j) ,(abs(valueClose) + abs(valueOpen)) *tradingCost + slippageCost ]];
                         dynamicEquity(i) =  cash(i)  + longMargin(i) + shortMargin(i); %现金+多头保证金+空头保证金
                     end
-                end   
+                end
             end
             
             %当前持仓价值
@@ -531,38 +531,38 @@ elseif enterPriceType == 1 %以次日收盘价成交你
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         avgCorr = (sum(sum(ExpCorrC)) - sum(diag(ExpCorrC)))/(N*(N-1));
                         tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.1./volList*sqrt(N/(1+(N-1)*avgCorr));
-                                            
+                        
                     elseif volScalingType == 7
                         N = length(volList);
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         avgCorr = (sum(sum(ExpCorrC)) - sum(diag(ExpCorrC)))/(N*(N-1));
                         tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList*sqrt(N/(1+(N-1)*avgCorr));
-                   
-                     elseif volScalingType == 8
-                         
+                        
+                    elseif volScalingType == 8
+                        
                         PortWts = (currSignal(currSignal~=0))/sum(abs(currSignal));
                         ExpReturn = zeros(size(PortWts));
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         [PortRisk , PortReturn] =portstats( ExpReturn, ExpCorrC , PortWts);
-                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.1./volList/PortRisk; 
-
-                         
-                     elseif volScalingType == 9
-                         
+                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.1./volList/PortRisk;
+                        
+                        
+                    elseif volScalingType == 9
+                        
                         PortWts = (currSignal(currSignal~=0))/sum(abs(currSignal));
                         ExpReturn = zeros(size(PortWts));
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         [PortRisk , PortReturn] =portstats( ExpReturn, ExpCorrC , PortWts);
-                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList/PortRisk; 
-                         
-                         
+                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList/PortRisk;
+                        
+                        
                     elseif volScalingType == 10
                         N = length(volList);
                         covMatrix = cov(retList);
                         weight = fmincon(@(x) riskParityFunc(x,covMatrix),1./volList/sum(1./volList), [],[],ones(1,N) ,1);
                         %tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList*sqrt(N/(1+(N-1)*avgCorr));
                         tradingValuePerContAdjustedbyVol = tradingValue.*weight;
-
+                        
                     end
                     tempScale = tradingValuePerContAdjustedbyVol/tradingValuePerCont;
                 end
@@ -628,7 +628,7 @@ else %以当日收盘价成交
         positionDirection  = zeros(length(tradeCalendar),length(commodityDataCell(1,:))); %持仓方向
         positionHolding = zeros(length(tradeCalendar),length(commodityDataCell(1,:))); %持仓手数
         amountHolding = zeros(length(tradeCalendar),length(commodityDataCell(1,:)));    %持仓面额
-         
+        
         tradingLotsPerContLastTerm = zeros(1,length(commodityDataCell)); %上一期的持仓手数
         scale = cellfun(@(x) ( x.scale),commodityDataCell(2,:));
         currSignal = zeros(1,length(commodityDataCell)); %当前持仓方向
@@ -639,7 +639,7 @@ else %以当日收盘价成交
         currTermReturn = zeros(1,length(commodityDataCell)); %本期各品种的收益
         entryPrice = zeros(1,length(commodityDataCell)); %本期各品种的开仓价格
         entryAdjPrice = entryPrice;
-        
+        error
         beginIdx = max(rankingPeriod,holdingPeriod ) + n - 1;
         
         for i = beginIdx : length(tradeCalendar)
@@ -662,7 +662,10 @@ else %以当日收盘价成交
                 
                 longMargin(i) = longMargin(i-1) +   sum(holdingValueChange(currPosition>0)*marginRatio);
                 shortMargin(i) = shortMargin(i-1)  +   sum(holdingValueChange(currPosition<0)*marginRatio);
-                cash(i) = cash(i) + sum(holdingValueChange)*(1 - marginRatio);
+                cash(i) = cash(i) + sum(holdingValueChange)*(1 - marginRatio); % 这里追加了保证金，可用资金不是应该减少？
+                %
+                % margin cash equity三者的转换关系是怎样的？
+                % 我理解应该是cash出钱进保证金，那cash应该减少，权益应该增加吧 这块不太理解。。。
                 dynamicEquity(i) =  cash(i)  + longMargin(i) + shortMargin(i); %现金+多头保证金+空头保证金
                 
                 % 合约换月处理
@@ -705,7 +708,8 @@ else %以当日收盘价成交
             holdingContractValue(i) = (longMargin(i) + shortMargin(i))*(1/marginRatio);
             
             %换仓日
-            if rem(i - beginIdx ,holdingPeriod) == 0 & i < length(tradeCalendar)
+            %%%%%%%%%%%%%下面是策略的核心部分，在换仓日的时候发出策略信号：
+            if rem(i - beginIdx ,holdingPeriod) == 0 && i < length(tradeCalendar)
                 
                 %首先记录平仓价位
                 closeAdjPrice = cellfun(@(x) ( x.dominant_Adjusted_Data(x.tradeCalendar == currTradeDate,...
@@ -769,7 +773,7 @@ else %以当日收盘价成交
                     volList = ATRList;
                     tradingValuePerContAdjustedbyVol = tradingValue*1./volList/sum(1./volList);
                     tempScale = tradingValuePerContAdjustedbyVol/tradingValuePerCont;
-                    
+                
                 else
                     volList = [];
                     retList = [];
@@ -801,42 +805,42 @@ else %以当日收盘价成交
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         avgCorr = (sum(sum(ExpCorrC)) - sum(diag(ExpCorrC)))/(N*(N-1));
                         tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.1./volList*sqrt(N/(1+(N-1)*avgCorr));
-                                            
+                        
                     elseif volScalingType == 7
                         N = length(volList);
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         avgCorr = (sum(sum(ExpCorrC)) - sum(diag(ExpCorrC)))/(N*(N-1));
                         tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList*sqrt(N/(1+(N-1)*avgCorr));
-                   
-                     elseif volScalingType == 8
-                         
+                        
+                    elseif volScalingType == 8
+                        
                         PortWts = (currSignal(currSignal~=0))/sum(abs(currSignal));
                         ExpReturn = zeros(size(PortWts));
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         [PortRisk , PortReturn] =portstats( ExpReturn, ExpCorrC , PortWts);
-                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.1./volList/PortRisk; 
-
-                         
-                     elseif volScalingType == 9
-                         
+                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.1./volList/PortRisk;
+                        
+                        
+                    elseif volScalingType == 9
+                        
                         PortWts = (currSignal(currSignal~=0))/sum(abs(currSignal));
                         ExpReturn = zeros(size(PortWts));
                         [~,ExpCorrC]=cov2corr(cov(retList));
                         [PortRisk , PortReturn] =portstats( ExpReturn, ExpCorrC , PortWts);
-                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList/PortRisk; 
-                         
-                         
+                        tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList/PortRisk;
+                        
+                        
                     elseif volScalingType == 10
                         N = length(volList);
                         covMatrix = cov(retList);
                         weight = fmincon(@(x) riskParityFunc(x,covMatrix),1./volList/sum(1./volList), [],[],ones(1,N) ,1);
                         %tradingValuePerContAdjustedbyVol = tradingValuePerCont*0.2./volList*sqrt(N/(1+(N-1)*avgCorr));
                         tradingValuePerContAdjustedbyVol = tradingValue.*weight;
-
+                        
                     end
                     tempScale = tradingValuePerContAdjustedbyVol/tradingValuePerCont;
                 end
-      
+                
                 %每个合约建仓价格 真实价格 用于计算资金   当天收盘价
                 entryPrice =cellfun(@(x) ( x.dominant_Data(x.tradeCalendar == currTradeDate,...
                     5)),commodityDataCell(2,currSignal~=0));
@@ -881,7 +885,7 @@ else %以当日收盘价成交
         dynamicEquityMat = [dynamicEquityMat, dynamicEquity];
         tradeRecordMat = [tradeRecordMat, tradeRecord];
         turnoverRatioRecordMat = [turnoverRatioRecordMat;turnoverRatioRecord];
-         amountHoldingSum = amountHoldingSum+amountHolding;
+        amountHoldingSum = amountHoldingSum+amountHolding;
     end
     
 end
