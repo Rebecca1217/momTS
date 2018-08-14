@@ -25,5 +25,6 @@ for i_fut = 1:length(fut_variety)
     % 这里可以用join(dateAim, dataRead)把数据join到目标日期上，然后roll = TRUE就行了
     priceF = getFullTS(priceF);
     % 就是这个函数实现的功能就是data.table join的时候roll = TRUE
+    % MATLAB中还没有发现有roll = TRUE这个功能
     dataBasic(:,i_fut) = priceF;
 end

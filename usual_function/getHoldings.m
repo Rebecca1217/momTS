@@ -75,6 +75,8 @@ for td = 1:length(factorDate) %逐个调仓日,注意factorDate中记录的是调仓日的前一日
         futData = futData(locs);
         futFactor = futFactor(locs);
         if remnum~=0 %有余数
+            % 如果分组后有余数，做如下处理：
+            % 去掉中位数附近的，余数个数据（区分度不高的）
             if rem(remnum,2)==0 %偶数
                 dltLocs = med-remnum/2+1:med+remnum/2;
             else %偶数
@@ -87,12 +89,13 @@ for td = 1:length(factorDate) %逐个调仓日,注意factorDate中记录的是调仓日的前一日
         locs = 1:length(futData);
         cutline = [0;cumsum(futnum*ones(GroupNum,1))];
         Groupings = zeros(length(futData),1);
+        % 对每个品种标记分组
         for gn = 1:GroupNum
             Groupings(locs(cutline(gn)+1:cutline(gn+1))) = gn;
         end
         holdingTD = cell(2*futnum,2);
         holdingTD(:,1) = [futFactor(Groupings==1);futFactor(Groupings==GroupNum)];
-        if strcmp(LongDirect,'max') %做多最后一组
+        if strcmp(LongDirect,'max') %做多最后一组(sort从低到高排序)，做空第一组
             holdingTD(1:futnum,2) = num2cell(-ones(futnum,1));
             holdingTD(futnum+1:end,2) = num2cell(ones(futnum,1));
         else

@@ -14,10 +14,11 @@ for c = 1:size(dataOri,2)
     if isempty(nanL) %该品种没有缺失的数据
         continue;
     end
-    nanL(nanL<st) = [];
+    nanL(nanL<st) = []; % 这句好像不写也是？或者除了NaN还有别的空值类型
     if ~isempty(nanL) %从有数值之后，依然有缺失值
         for r = 1:length(nanL)
-            tmp(nanL(r)) = tmp(nanL(r)-1);
+            tmp(nanL(r)) = tmp(nanL(r)-1); % 即使有>1个空值也能都填补完，因为是从第一个空值顺次...
+                                           % 往下填补的，所以能全补齐
         end
     end
     dataF(:,c) = tmp;

@@ -19,10 +19,13 @@ str = ['fut_variety = ',IndustryChoice,';'];
 eval(str) 
 
 % 合约乘数
-load([usualPath,'\cont_multi.mat'])
-[~,~,li1] = intersect(fut_variety,cont_multi(:,1),'stable'); %顺序问题
-contMulti = cont_multi(li1,:);
-contMulti = cell2mat(contMulti(:,2));
+% 合约乘数会变的话是不是不能用最新，要每天用自己的？
+% 目前先暂时用edDate的乘数
+load([usualPath,'\PunitInfo\', num2str(edDate), '.mat'])
+[~,~,li1] = intersect(fut_variety,infoData(:,1),'stable'); %顺序问题
+contMulti = infoData(li1,:);
+contMulti = cell2mat(contMulti(:,2)); % 这里出的结果比fut_variety少一个种类。。
+% 顺序问题都可以用table join来解决
 % 
 if strcmpi(wgtType,'eqATR')
     ATRpath = paraAlc.ATRpath;
@@ -93,6 +96,7 @@ elseif strcmpi(wgtType,'eqSize')
     % 导入主力合约数据
     mainData = nan(length(totaldate),length(fut_variety)+1);
     mainData(:,1) = totaldate;
+    % 下面这个for 用来获取收盘价*合约乘数数据集
     for i_fut = 1:length(fut_variety)
         fut = fut_variety{i_fut};
         % 导入数据
@@ -102,7 +106,8 @@ elseif strcmpi(wgtType,'eqSize')
         % 数据对齐
         [~,li0,li1] = intersect(dateMain,totaldate);
         mainData(li1,i_fut+1) = clData(li0)*contMulti(i_fut); %收盘价数据用合约乘数调整了
-    end
+    end % 如果用table的数据格式，这个for是没有必要的，这个for完成的是每个品种做一次一共循环了48次得到mainData的每一列
+    % 下面这个for用于去掉非流动性部分的数据
     for d = 1:length(totaldate)
         load([futLiquidPath,'\',num2str(totaldate(d)),'.mat'])
         [~,li0] = setdiff(fut_variety,liquidityInfo);
@@ -111,14 +116,14 @@ elseif strcmpi(wgtType,'eqSize')
     % 手数换算
     ListNum = sum(~isnan(mainData(:,2:end)),2); %计算当期上市的品种数
     HoldingSize = repmat(capital./ListNum,1,length(fut_variety));
-    HoldingSize(isnan(mainData(:,2:end))) = nan;
-    HoldingHands = round(HoldingSize./mainData(:,2:end));
+    HoldingSize(isnan(mainData(:,2:end))) = nan; % 对每天的可流动品种平均分配本金
+    HoldingHands = round(HoldingSize./mainData(:,2:end)); 
     realSize = HoldingHands.*mainData(:,2:end);
     realSizeDly = nansum(realSize,2);
     HoldingWgt = bsxfun(@times,realSize,repmat(1./realSizeDly,1,size(realSize,2)));
     HoldingWgtOri = repmat(1./ListNum,1,size(realSize,2));
     HoldingWgtOri(isnan(mainData(:,2:end))) = nan;
-    %
+    % 都往下挪一行，根据t-1日的价格确定t日的开仓手数，记录在t行
     HoldingInfo.Hands = [totaldate,[nan(1,length(fut_variety));HoldingHands(1:end-1,:)]];
     HoldingInfo.Size = [totaldate,[nan(1,length(fut_variety));realSize(1:end-1,:)]]; %实际开仓市值
     HoldingInfo.NomSize = [totaldate,[nan(1,length(fut_variety));HoldingSize(1:end-1,:)]]; %分配的开仓市值

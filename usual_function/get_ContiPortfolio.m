@@ -3,7 +3,7 @@ function TargetPortfolio = get_ContiPortfolio(HoldingPortfolio,totalDate,futMain
 % t日记录t+1日的目标持仓
 % 中间填补的时候要注意是否有合约发生换月！！！！！！不能简单的填充上去
 if nargin==2
-    futMainContPath = 'D:\期货数据2.0\商品期货主力合约代码';
+    futMainContPath = '\\Cj-lmxue-dt\期货数据2.0\商品期货主力合约代码';
 end
 tradeDate = cell2mat(HoldingPortfolio(:,2));
 contiDate = totalDate(find(totalDate==tradeDate(1),1):end-1);

@@ -21,6 +21,7 @@ infoDate = HandsInfo(:,1); %HoldingInfo对应的日期
 TradeList = HoldingList.TradeList;
 % 20180315修改部分
 empL = cell2mat(cellfun(@(x) isempty(x),TradeList(:,1),'UniformOutput',0));
+% cellfun函数，UniformOutput参数默认是1 TRUE
 TradeList(empL,:) = [];
 tradeDate = cell2mat(TradeList(:,2)); %TradeList对应的日期
 % 日期记录方式对齐，infoDate要取t+1日的持仓手数，才是tradeList对应的t日的配置手数
@@ -94,12 +95,15 @@ end
 % 从首个有持仓的日期开始
 stL = cellfun(@(x) isempty(x),HoldingPortfolio(:,1),'UniformOutput',0);
 stL = cell2mat(stL);
+% 上面两行等价于stL = cellfun(@(x), isempty(x), HoldingPortfolio(:,1)))
+% UniformOutput默认是1，输出与函数输出格式保持一致，改成0的话会输出cell
 stL = find(stL==0,1,'first');
 % HoldingPortfolio里面的品种代码要加上月份信息
 HoldingPortfolio = HoldingPortfolio(stL:end,:);
 for d = 1:length(HoldingPortfolio)
     dateI = HoldingPortfolio{d,2};
     % 导入主力合约代码
+    % 在这之前还都是品种层面
     load([futMainContPath,'\',num2str(dateI),'.mat'])
     futcont = regexp(maincont(:,1),'\w*(?=\.)','match');
     futcont = reshape([futcont{:}],size(futcont));

@@ -28,7 +28,7 @@ cutLoss = []; %止损，先不考虑
 cutProfit = []; %止盈，先不考虑
 Cap.Capital = 10000000; %开仓市值
 TradePara.fixC = 0.0002; %固定成本
-TradePara.slip = 2; %滑点
+TradePara.slip = 2; %滑点 滑点等于2表示2个点？一般价格都是三四千，2个点影响大？不过当天价格变动可能就十几个点
 TradePara.PType = 'avg'; %交易价格，一般用open（开盘价）或者avg(日均价）
 stDate = 20100101; %回测开始日期
 edDate = 20171031; %回测结束日期
@@ -36,23 +36,25 @@ edDate = 20171031; %回测结束日期
 % 因子数据路径
 PFactor.FactorPath = '\\Cj-lmxue-dt\期货数据2.0\因子测试数据\TALib\PR\Combine\001\Ori\1\win0'; %因子数据存储路径
 % 交易数据路径
-TradePara.futDataPath = 'D:\期货数据2.0\dlyData\主力合约'; %期货主力合约数据路径
-TradePara.futUnitPath = 'D:\期货数据2.0\usualData\minTickInfo.mat'; %期货最小变动单位
-TradePara.futMultiPath = 'D:\期货数据2.0\usualData\PunitInfo'; %期货合约乘数
-TradePara.futLiquidPath = 'D:\期货数据2.0\usualData\liquidityInfo'; %期货品种流动性数据，用来筛选出活跃品种，剔除不活跃品种
-TradePara.futSectorPath = 'D:\期货数据2.0\usualData\SectorInfo.mat'; %期货样本池数据，用来确定样本集对应的品种
-TradePara.futMainContPath = 'D:\期货数据2.0\商品期货主力合约代码'; %主力合约代码
-TradePara.usualPath = '..\data\usualData';%基础通用数据
+TradePara.futDataPath = '\\Cj-lmxue-dt\期货数据2.0\dlyData\主力合约'; %期货主力合约数据路径
+TradePara.futUnitPath = '\\Cj-lmxue-dt\期货数据2.0\usualData\minTickInfo.mat'; %期货最小变动单位
+TradePara.futMultiPath = '\\Cj-lmxue-dt\期货数据2.0\usualData\PunitInfo'; %期货合约乘数
+TradePara.futLiquidPath = '\\Cj-lmxue-dt\期货数据2.0\usualData\liquidityInfo'; %期货品种流动性数据，用来筛选出活跃品种，剔除不活跃品种
+TradePara.futSectorPath = '\\Cj-lmxue-dt\期货数据2.0\usualData\SectorInfo.mat'; %期货样本池数据，用来确定样本集对应的品种
+TradePara.futMainContPath = '\\Cj-lmxue-dt\期货数据2.0\商品期货主力合约代码'; %主力合约代码
+% TradePara.usualPath = '..\data\usualData';%基础通用数据 这个地址是哪里？
+TradePara.usualPath = '\\Cj-lmxue-dt\期货数据2.0\usualData'; 
 
 % 调仓参数路径
 if strcmpi(PGlobal.AllocateType,'eqATR') || ~isempty(cutLoss) || ~isempty(cutProfit)%ATR路径，因为止盈止损会用到ATR
     paraAlc.win = 14; %ATR计算的窗口期参数，14或20
     paraAlc.budget = 100000; %风险预算
-    paraAlc.ATRpath = ['..\data\usualData\ATRindex\win',num2str(paraAlc.win)]; %ATR数据存储路径
+    paraAlc.ATRpath = ['..\data\usualData\ATRindex\win',num2str(paraAlc.win)]; %ATR数据存储路径 是本地路径吗？
 else
     paraAlc = [];
 end
-paraAlc.tdDPath = '..\data\adjData\主力合约'; %调仓通用路径-时序数据
+% paraAlc.tdDPath = '..\data\adjData\主力合约'; %调仓通用路径-时序数据
+paraAlc.tdDPath = '\\Cj-lmxue-dt\期货数据2.0\dlyData\主力合约'; %调仓通用路径-时序数据
 paraAlc.usualPath = TradePara.usualPath; %基础通用数据
 paraAlc.futLiquidPath = TradePara.futLiquidPath; %流动性筛选数据
 paraAlc.futSectorPath = TradePara.futSectorPath; %板块筛选数据

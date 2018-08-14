@@ -18,7 +18,7 @@ dateST = para.dateST;
 dateED = para.dateED;
 
 % 面板数据
-dataBasic = getBasicData(fut_variety,FPath,dateBasic,PType);
+dataBasic = getBasicData(fut_variety,FPath,dateBasic,PType); %维度：时间+品种，变量只有Close一个
 
 dataBasic_BF = [nan(win,size(dataBasic,2));dataBasic(1:end-win,:)];
 factorData = dataBasic./dataBasic_BF-1;
